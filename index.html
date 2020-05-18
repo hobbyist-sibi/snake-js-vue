@@ -53,7 +53,7 @@
                 <template v-for="(row,rowIndex) in stage">
                     <template v-for="(cell, columnIndex) in row">
                         <div v-if="cell === 1" class="snakeCell"></div>
-                        <div v-else class="cell">{{rowIndex}},{{columnIndex}}</div>
+                        <div v-else class="cell"></div>
                     </template>
                 </template>
             </div>
@@ -183,7 +183,7 @@
                     this.stage.splice(this.snake[i][0], 1, arr);
                 }
 
-                setInterval(function(){app.moveSnake();},100);  
+                //setInterval(function(){app.moveSnake();},100);  
             }
         });
 
