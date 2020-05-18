@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake</title>
+    <!--<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>-->
+    <script src="vue.js"></script>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+        }
+
+        #app{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+        }
+        #box{
+            padding: 16px;
+            display: grid;
+            grid-template-columns: repeat(30, 16px);
+            grid-template-rows: repeat(30,16px);
+            grid-gap: 1px;
+            box-shadow: 0px 0px 10px grey;
+        }
+
+        .cell{
+            //background-color: #333;
+            //border-radius: 3px;
+            //margin: 1px;
+            width: 100%;
+            height: 100%;
+            font-size:.5em;
+        }
+
+        .snakeCell{
+            background-color: #333;
+            //border-radius: 3px;
+            //margin: 1px;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="app">
+            <div id="box">
+                <template v-for="(row,rowIndex) in stage">
+                    <template v-for="(cell, columnIndex) in row">
+                        <div v-if="cell === 1" class="snakeCell"></div>
+                        <div v-else class="cell">{{rowIndex}},{{columnIndex}}</div>
+                    </template>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SNAKE = 1;
+        const FOOD = 2;
+
+        const RIGHT = 0;
+        const LEFT = 1;
+        const UP = 2;
+        const DOWN = 3;
+
+        let st = [];
+
+        for(let i = 0; i < this.rows; i++){
+            let tempColumn = [];
+            for(let j = 0; j < this.columns; j++){
+                tempColumn.push(0);
+            }
+            st.push(tempColumn);
+        }
+
+        function sleep(milliseconds) {
+            const date = Date.now();
+            let currentDate = null;
+            do {
+                currentDate = Date.now();
+            } while (currentDate - date < milliseconds);
+        }
+
+        function doit(event){
+            switch(event.key){
+                case "u":
+                if(app.snakeDirection===LEFT || app.snakeDirection===RIGHT)
+                app.snakeDirection = UP;
+                break;
+                case "h":
+                if(app.snakeDirection===UP || app.snakeDirection===DOWN)
+                app.snakeDirection = LEFT;
+                break;
+                case "j":
+                if(app.snakeDirection===UP || app.snakeDirection===DOWN)
+                app.snakeDirection = RIGHT;
+                break;
+                case "n":
+                if(app.snakeDirection===LEFT || app.snakeDirection===RIGHT)
+                app.snakeDirection = DOWN;
+                break;
+            }
+        }
+
+        document.addEventListener("keypress", doit);
+
+        var app = new Vue({
+            el: '#app',
+            data() {
+                return{
+                    rows: 30,
+                    columns:30,
+                    stage: st,
+                    snake: [[0,0],[0,1],[0,2],[0,3],[0,4]],
+                    snakeDirection: 0,
+                    fruitCell:[10,12],
+                }
+            },
+            watch: {
+
+            },
+            methods: {
+                isSnake: function(row, column){
+                    if(this.stage[row][column] === 1)
+                        return true;
+                    else
+                        return false;
+                },
+                moveSnake: function(){
+                    let newCell = [];
+                    newCell[0] = this.snake[this.snake.length-1][0];
+                    newCell[1] = this.snake[this.snake.length-1][1];
+                    switch(this.snakeDirection){
+                        case RIGHT:
+                            newCell[1]++;
+                            break;
+                        case LEFT:
+                            newCell[1]--;
+                            break;
+                        case UP:
+                            newCell[0]--;
+                            break;
+                        case DOWN:
+                            newCell[0]++;
+                            break;
+                    }
+                    this.snake.push(newCell);
+                    let addingCell = this.stage[newCell[0]];
+                    addingCell[newCell[1]] = 1;
+                    this.stage.splice(newCell[0], 1, addingCell);
+
+                    //if(newCell[0] === this.fruitCell[0] && newCell[1] === this.fruitCell[1]){
+                        //Add point
+                    //}
+                    //else{
+                        let deletingCell = this.stage[this.snake[0][0]];
+                        deletingCell[this.snake[0][1]] = 0;
+                        this.stage.splice(this.snake[0][0], 1, deletingCell);
+                        this.snake.shift();
+                    //}
+
+                    
+                }
+            },
+            mounted(){
+                for(let i = 0; i < this.rows; i++){
+                    let tempColumn = [];
+                    for(let j = 0; j < this.columns; j++){
+                        tempColumn.push(0);
+                    }
+                    this.stage.push(tempColumn);
+                }
+
+                for(let i = 0; i < this.snake.length; i++){
+                    let arr = this.stage[this.snake[i][0]];
+                    arr[this.snake[i][1]] = 1;
+                    this.stage.splice(this.snake[i][0], 1, arr);
+                }
+
+                setInterval(function(){app.moveSnake();},100);  
+            }
+        });
+
+        //setInterval(function(){app.moveSnake();},1000);
+    </script>
+</body>
+</html>
+
